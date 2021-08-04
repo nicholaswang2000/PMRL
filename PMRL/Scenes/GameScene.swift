@@ -36,36 +36,36 @@ class GameScene: SKScene {
     
     func setupPhysics() {
         physicsWorld.contactDelegate = self
-        physicsBody = SKPhysicsBody(edgeLoopFrom: CGRect(x: 0, y: -1000, width: frame.width, height: frame.height+2000))
+        physicsBody = Positions.physicsBody
     }
     
     func setupField() {
         backgroundColor = Colors.topColor
         
-        bottomRectangle = SKShapeNode(rectOf: CGSize(width: frame.width, height: frame.height/15))
+        bottomRectangle = Positions.bottomRectangle
         bottomRectangle.name = "Bottom Cannons"
         bottomRectangle.fillColor = Colors.bottomColor
         bottomRectangle.strokeColor = Colors.bottomColor
-        bottomRectangle.position = CGPoint(x: frame.midX, y: frame.minY + frame.height/15)
-        bottomRectangle.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: frame.width, height: frame.height/15))
+        bottomRectangle.position = Positions.bottomRectanglePosition
+        bottomRectangle.physicsBody = Positions.bottomRectanglePhysicsBody
         bottomRectangle.physicsBody?.isDynamic = false
         bottomRectangle.physicsBody?.categoryBitMask = PhysicsCategories.wall
         bottomRectangle.physicsBody?.affectedByGravity = false
         bottomRectangle.zPosition = ZPositions.wall
-        bottomCutoff = frame.minY + frame.height/15 + frame.height/30
+        bottomCutoff = Positions.bottomCutoff
         addChild(bottomRectangle)
         
-        topRectangle = SKShapeNode(rectOf: CGSize(width: frame.width, height: frame.height/15))
+        topRectangle = Positions.topRectangle
         topRectangle.name = "Top Cannons"
         topRectangle.fillColor = Colors.topColor
         topRectangle.strokeColor = Colors.topColor
-        topRectangle.position = CGPoint(x: frame.midX, y: frame.maxY - frame.height/15)
-        topRectangle.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: frame.width, height: frame.height/15))
+        topRectangle.position = Positions.topRectanglePosition
+        topRectangle.physicsBody = Positions.topRectanglePhysicsBody
         topRectangle.physicsBody?.isDynamic = false
         topRectangle.physicsBody?.categoryBitMask = PhysicsCategories.wall
         topRectangle.physicsBody?.affectedByGravity = false
         topRectangle.zPosition = ZPositions.wall
-        topCutoff = frame.maxY - frame.height/15 - frame.height/30
+        topCutoff = Positions.topCutoff
         addChild(topRectangle)
         
         let field = SKShapeNode(rectOf: CGSize(width: frame.width, height: frame.height-bottomRectangle.frame.height*2))
@@ -75,46 +75,43 @@ class GameScene: SKScene {
         field.position = CGPoint(x: frame.midX, y: frame.midY)
         addChild(field)
         
-        soccerBall = SKShapeNode(circleOfRadius: frame.width/20)
+        soccerBall = SKShapeNode(circleOfRadius: Positions.soccerBallRadius)
         soccerBall.name = "Soccer Ball"
         soccerBall.fillColor = Colors.ballColor
         soccerBall.strokeColor = Colors.ballColor
         soccerBall.position = CGPoint(x: frame.midX, y: frame.midY)
-        
-        soccerBall.physicsBody = SKPhysicsBody(circleOfRadius: frame.width/20)
+        soccerBall.physicsBody = SKPhysicsBody(circleOfRadius: Positions.soccerBallRadius)
         soccerBall.physicsBody?.isDynamic = true
         soccerBall.physicsBody?.categoryBitMask = PhysicsCategories.soccerBall
         soccerBall.physicsBody?.contactTestBitMask = PhysicsCategories.wall
         soccerBall.physicsBody?.affectedByGravity = false
-        soccerBall.physicsBody?.linearDamping = 2
-        soccerBall.physicsBody?.mass = 0.001
+        soccerBall.physicsBody?.linearDamping = VariableValues.soccerBallLinearDamping
+        soccerBall.physicsBody?.mass = VariableValues.soccerBallMass
         soccerBall.zPosition = ZPositions.ball
-        
         addChild(soccerBall)
-        
         
         let yourline = SKShapeNode()
         let pathToDraw = CGMutablePath()
-        pathToDraw.move(to: CGPoint(x: frame.width, y: frame.height/2))
-        pathToDraw.addLine(to: CGPoint(x: 0, y: frame.height/2))
+        pathToDraw.move(to: CGPoint(x: frame.width, y: Positions.fieldLineY))
+        pathToDraw.addLine(to: CGPoint(x: 0, y: Positions.fieldLineY))
         yourline.path = pathToDraw
         yourline.strokeColor = Colors.lineColor
         yourline.zPosition = ZPositions.line
         addChild(yourline)
-        
-        
+        print(frame.width, frame.height)
+
         topScoreLabel.fontName = "AvenirNext-Bold"
-        topScoreLabel.fontSize = 50.0
+        topScoreLabel.fontSize = Positions.fontSize
         topScoreLabel.fontColor = Colors.lineColor
-        topScoreLabel.position = CGPoint(x: frame.maxX-50, y: frame.midY-40)
-        topScoreLabel.zRotation = -.pi/2
+        topScoreLabel.position = CGPoint(x: frame.maxX-Positions.fontSize, y: frame.midY-Positions.fontSize)
+        topScoreLabel.zRotation = Positions.fontRotation
         topScoreLabel.zPosition = ZPositions.label
         addChild(topScoreLabel)
         bottomScoreLabel.fontName = "AvenirNext-Bold"
-        bottomScoreLabel.fontSize = 50.0
+        bottomScoreLabel.fontSize = Positions.fontSize
         bottomScoreLabel.fontColor = Colors.lineColor
-        bottomScoreLabel.position = CGPoint(x: frame.maxX-50, y: frame.midY+40)
-        bottomScoreLabel.zRotation = -.pi/2
+        bottomScoreLabel.position = CGPoint(x: frame.maxX-Positions.fontSize, y: frame.midY+Positions.fontSize)
+        bottomScoreLabel.zRotation = Positions.fontRotation
         bottomScoreLabel.zPosition = ZPositions.label
         addChild(bottomScoreLabel)
         
@@ -132,37 +129,49 @@ class GameScene: SKScene {
         var cutoff = bottomCutoff
         
         if touchLocation.y < bottomCutoff {
-            dy = 500
+            dy = VariableValues.ballSpeedY
         } else if touchLocation.y > topCutoff {
-            dy = -500
+            dy = -VariableValues.ballSpeedY
             color = Colors.topColor
             cutoff = topCutoff
         } else {
             return
         }
         
-        let ball = SKShapeNode(circleOfRadius: frame.size.width/50)
+        let ball = SKShapeNode(circleOfRadius: VariableValues.ballRadius)
         ball.fillColor = color
         ball.strokeColor = color
         ball.position = CGPoint(x: touchLocation.x, y: cutoff!)
-        ball.physicsBody = SKPhysicsBody(circleOfRadius: frame.size.width/50)
+        ball.physicsBody = SKPhysicsBody(circleOfRadius: VariableValues.ballRadius)
         ball.physicsBody?.isDynamic = true
         ball.physicsBody?.categoryBitMask = PhysicsCategories.shootBall
         ball.physicsBody?.collisionBitMask = PhysicsCategories.soccerBall|PhysicsCategories.shootBall
         ball.physicsBody?.affectedByGravity = false
-        ball.physicsBody?.velocity = CGVector(dx: 0, dy: dy)
+        ball.physicsBody?.velocity = CGVector(dx: VariableValues.ballSpeedX, dy: dy)
         ball.zPosition = ZPositions.ball
         
         addChild(ball)
         
-        ball.run(SKAction.sequence([SKAction.wait(forDuration: 2.5), SKAction.fadeAlpha(to: 0, duration: 1), SKAction.removeFromParent()]))
+        let removeDynamic = SKAction.customAction(withDuration: 0) {
+            node, elapsedTime in
+            
+            if let node = node as? SKSpriteNode {
+                node.physicsBody?.isDynamic = false
+            }
+        }
+        
+        ball.run(SKAction.sequence([SKAction.wait(forDuration: VariableValues.ballDuration), removeDynamic, SKAction.fadeAlpha(to: 0, duration: 1), SKAction.removeFromParent()]))
     }
     
-    func updateScoreLabel() {
-        topScoreLabel.text = "\(topScore)"
-        bottomScoreLabel.text = "\(bottomScore)"
+    func updateScoreLabel(_ winner: Players) {
+        if winner == Players.top {
+            topScore += 1
+            topScoreLabel.text = "\(topScore)"
+        } else {
+            bottomScore += 1
+            bottomScoreLabel.text = "\(bottomScore)"
+        }
     }
-    
 }
 
 
@@ -172,17 +181,13 @@ extension GameScene: SKPhysicsContactDelegate {
         let contactMask = contact.bodyA.categoryBitMask | contact.bodyB.categoryBitMask
         if contactMask == PhysicsCategories.soccerBall | PhysicsCategories.wall {
             if contact.bodyA.node!.position.y > frame.height/2 {
-                bottomScore += 1
-                
+                updateScoreLabel(Players.top)
             } else {
-                topScore += 1
+                updateScoreLabel(Players.bottom)
             }
             removeAllChildren()
-            updateScoreLabel()
             setupField()
             setupPhysics()
         }
-        
     }
-    
 }

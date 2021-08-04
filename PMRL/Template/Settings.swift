@@ -58,6 +58,10 @@ enum Positions {
     // Soccer Ball
     static let soccerBallRadius = UIScreen.main.bounds.width/20
     
+    // Labels
+    static let topScoreLabelPosition = CGPoint(x: UIScreen.main.bounds.maxX-Positions.fontSize, y: UIScreen.main.bounds.midY-Positions.fontSize)
+    static let bottomScoreLabelPosition = CGPoint(x: UIScreen.main.bounds.maxX-Positions.fontSize, y: UIScreen.main.bounds.midY+Positions.fontSize)
+    
     // Field line
     static let fieldLineY = UIScreen.main.bounds.height/2
     
@@ -74,4 +78,9 @@ enum VariableValues {
     static let ballSpeedX: Int = 0
     static let ballSpeedY: Int = 500
     static let ballRadius =  UIScreen.main.bounds.size.width/50
+    
+    static let regen: TimeInterval = 0.8
+    
+    static let maxBalls = 20
+    static let startBalls = 10
 }

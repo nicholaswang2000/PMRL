@@ -7,15 +7,6 @@
 
 import SpriteKit
 
-enum PlayerColors {
-    static let colors = [
-        UIColor(red: 231/255, green: 76/255, blue: 60/255, alpha: 1.0),
-        UIColor(red: 241/255, green: 196/255, blue: 15/255, alpha: 1.0),
-        UIColor(red: 46/255, green: 204/255, blue: 113/255, alpha: 1.0),
-        UIColor(red: 52/255, green: 152/255, blue: 219/255, alpha: 1.0)
-    ]
-}
-
 class GameScene: SKScene {
     
     var bottomRectangle: SKShapeNode!
@@ -27,6 +18,10 @@ class GameScene: SKScene {
     var bottomScoreLabel = SKLabelNode(text: "0")
     var topScore = 0
     var bottomScore = 0
+    var topBallsLeft = VariableValues.startBalls
+    var bottomBallsLeft = VariableValues.startBalls
+    var timerTop = Timer()
+    var timerBottom = Timer()
     
     
     override func didMove(to view: SKView) {
@@ -98,23 +93,46 @@ class GameScene: SKScene {
         yourline.strokeColor = Colors.lineColor
         yourline.zPosition = ZPositions.line
         addChild(yourline)
-        print(frame.width, frame.height)
 
         topScoreLabel.fontName = "AvenirNext-Bold"
         topScoreLabel.fontSize = Positions.fontSize
         topScoreLabel.fontColor = Colors.lineColor
-        topScoreLabel.position = CGPoint(x: frame.maxX-Positions.fontSize, y: frame.midY-Positions.fontSize)
+        topScoreLabel.position = Positions.topScoreLabelPosition
         topScoreLabel.zRotation = Positions.fontRotation
         topScoreLabel.zPosition = ZPositions.label
         addChild(topScoreLabel)
         bottomScoreLabel.fontName = "AvenirNext-Bold"
         bottomScoreLabel.fontSize = Positions.fontSize
         bottomScoreLabel.fontColor = Colors.lineColor
-        bottomScoreLabel.position = CGPoint(x: frame.maxX-Positions.fontSize, y: frame.midY+Positions.fontSize)
+        bottomScoreLabel.position = Positions.bottomScoreLabelPosition
         bottomScoreLabel.zRotation = Positions.fontRotation
         bottomScoreLabel.zPosition = ZPositions.label
         addChild(bottomScoreLabel)
         
+        scheduledAddToTop()
+        scheduledAddToBottom()
+    }
+    
+    func scheduledAddToTop() {
+        timerTop = Timer.scheduledTimer(timeInterval: VariableValues.regen, target: self, selector: #selector(addTop), userInfo: nil, repeats: true)
+    }
+    
+    @objc func addTop() {
+        if topBallsLeft >= VariableValues.maxBalls {
+            return
+        }
+        topBallsLeft += 1
+    }
+    
+    func scheduledAddToBottom() {
+        timerBottom = Timer.scheduledTimer(timeInterval: VariableValues.regen, target: self, selector: #selector(addBottom), userInfo: nil, repeats: true)
+    }
+    
+    @objc func addBottom() {
+        if bottomBallsLeft >= VariableValues.maxBalls {
+            return
+        }
+        bottomBallsLeft += 1
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -130,8 +148,16 @@ class GameScene: SKScene {
         
         if touchLocation.y < bottomCutoff {
             dy = VariableValues.ballSpeedY
+            if topBallsLeft == 0 {
+                return
+            }
+            topBallsLeft -= 1
         } else if touchLocation.y > topCutoff {
             dy = -VariableValues.ballSpeedY
+            if bottomBallsLeft == 0 {
+                return
+            }
+            bottomBallsLeft -= 1
             color = Colors.topColor
             cutoff = topCutoff
         } else {
@@ -149,24 +175,16 @@ class GameScene: SKScene {
         ball.physicsBody?.affectedByGravity = false
         ball.physicsBody?.velocity = CGVector(dx: VariableValues.ballSpeedX, dy: dy)
         ball.zPosition = ZPositions.ball
-        
         addChild(ball)
         
-        let removeDynamic = SKAction.customAction(withDuration: 0) {
-            node, elapsedTime in
-            
-            if let node = node as? SKSpriteNode {
-                node.physicsBody?.isDynamic = false
-            }
-        }
-        
-        ball.run(SKAction.sequence([SKAction.wait(forDuration: VariableValues.ballDuration), removeDynamic, SKAction.fadeAlpha(to: 0, duration: 1), SKAction.removeFromParent()]))
+        ball.run(SKAction.sequence([SKAction.wait(forDuration: VariableValues.ballDuration), SKAction.fadeAlpha(to: 0, duration: 1), SKAction.removeFromParent()]))
     }
     
     func updateScoreLabel(_ winner: Players) {
         if winner == Players.top {
             topScore += 1
             topScoreLabel.text = "\(topScore)"
+            //topScoreLabel.run(SKAction.sequence([SKAction.move(to: CGPoint(x: frame.midX, y: frame.midY-Positions.rectangleHeight/4), duration: 0.0), SKAction.wait(forDuration: 1.0), SKAction.move(to: Positions.topScoreLabelPosition, duration: 1.0)]))
         } else {
             bottomScore += 1
             bottomScoreLabel.text = "\(bottomScore)"

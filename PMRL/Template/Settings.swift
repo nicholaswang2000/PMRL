@@ -68,6 +68,15 @@ enum Positions {
     // Label font
     static let fontSize = UIScreen.main.bounds.width * 0.1282
     static let fontRotation: CGFloat = CGFloat(-Double.pi/2)
+    
+    // Pause button
+    static let pauseButtonSize = UIScreen.main.bounds.width/8
+    static let pauseButtonX = UIScreen.main.bounds.minX + UIScreen.main.bounds.width/15
+    static let pauseButtonY = UIScreen.main.bounds.midY + UIScreen.main.bounds.width/10
+    static let settingsButtonSize = UIScreen.main.bounds.width/10
+    static let settingsButtonX = UIScreen.main.bounds.minX + UIScreen.main.bounds.width/14
+    static let settingsButtonY = UIScreen.main.bounds.midY - UIScreen.main.bounds.width/10
+    static let playButtonSize = UIScreen.main.bounds.width/3
 }
 
 enum VariableValues {

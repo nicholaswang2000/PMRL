@@ -16,6 +16,10 @@ class GameScene: SKScene {
     var bottomCutoff: CGFloat!
     var topScoreLabel = SKLabelNode(text: "0")
     var bottomScoreLabel = SKLabelNode(text: "0")
+    var pauseButton: SKSpriteNode!
+    var settingsButton: SKSpriteNode!
+    var pauseScene: SKSpriteNode!
+    var playButton: SKSpriteNode!
     var topScore = 0
     var bottomScore = 0
     var topBallsLeft = VariableValues.startBalls
@@ -63,6 +67,26 @@ class GameScene: SKScene {
         topCutoff = Positions.topCutoff
         addChild(topRectangle)
         
+        pauseButton = SKSpriteNode(imageNamed: "pause")
+        pauseButton.size = CGSize(width: Positions.pauseButtonSize, height: Positions.pauseButtonSize)
+        pauseButton.zRotation = -.pi/2
+        pauseButton.zPosition = ZPositions.label
+        pauseButton.color = Colors.lineColor
+        pauseButton.colorBlendFactor = 1.0
+        pauseButton.name = "Pause"
+        pauseButton.position = CGPoint(x: Positions.pauseButtonX, y: Positions.pauseButtonY)
+        addChild(pauseButton)
+        
+        settingsButton = SKSpriteNode(imageNamed: "settings")
+        settingsButton.size = CGSize(width: Positions.settingsButtonSize, height: Positions.settingsButtonSize)
+        settingsButton.zRotation = -.pi/2
+        settingsButton.zPosition = ZPositions.label
+        settingsButton.color = Colors.lineColor
+        settingsButton.colorBlendFactor = 1.0
+        settingsButton.name = "Settings"
+        settingsButton.position = CGPoint(x: Positions.settingsButtonX, y: Positions.settingsButtonY)
+        addChild(settingsButton)
+        
         let field = SKShapeNode(rectOf: CGSize(width: frame.width, height: frame.height-bottomRectangle.frame.height*2))
         field.name = "Field"
         field.fillColor = Colors.backgroundColor
@@ -109,6 +133,8 @@ class GameScene: SKScene {
         bottomScoreLabel.zPosition = ZPositions.label
         addChild(bottomScoreLabel)
         
+        
+        
         scheduledAddToTop()
         scheduledAddToBottom()
     }
@@ -135,6 +161,29 @@ class GameScene: SKScene {
         bottomBallsLeft += 1
     }
     
+    func pauseGame() {
+        pauseScene = SKSpriteNode(color: UIColor.black, size: frame.size)
+        pauseScene.alpha = 0.75
+        pauseScene.name = "Paused Scene"
+        pauseScene.zPosition = 100
+        pauseScene.position = CGPoint(x: frame.midX, y: frame.midY)
+        addChild(pauseScene)
+        
+        playButton = SKSpriteNode(imageNamed: "play")
+        playButton.size = CGSize(width: Positions.playButtonSize, height: Positions.playButtonSize)
+        playButton.position = CGPoint(x: frame.midX, y: frame.midY)
+        playButton.zPosition = 101
+        addChild(playButton)
+        
+        self.scene?.isPaused = true
+    }
+    
+    func resumeGame() {
+        pauseScene.removeFromParent()
+        playButton.removeFromParent()
+        self.scene?.isPaused = false
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else {
             return
@@ -145,6 +194,16 @@ class GameScene: SKScene {
         var dy = 0
         var color = Colors.bottomColor
         var cutoff = bottomCutoff
+        
+        let touchedNodes = nodes(at: touchLocation)
+        for node in touchedNodes {
+            if node.name == "Pause" {
+                pauseGame()
+            }
+            if node.name == "Paused Scene" {
+                resumeGame()
+            }
+        }
         
         if touchLocation.y < bottomCutoff {
             dy = VariableValues.ballSpeedY

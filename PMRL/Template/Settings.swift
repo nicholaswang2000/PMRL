@@ -93,3 +93,13 @@ enum VariableValues {
     static let maxBalls = 20
     static let startBalls = 10
 }
+
+public extension CGFloat {
+    
+    // Converts degrees to radians
+    public func degreesToRadians() -> CGFloat {
+        return CGFloat.pi * self / 180.0
+    }
+    
+}
+

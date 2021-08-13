@@ -27,10 +27,27 @@ class GameScene: SKScene {
     var timerTop = Timer()
     var timerBottom = Timer()
     
+    var circle = CircularProgressBar()
+    
     
     override func didMove(to view: SKView) {
         setupField()
         setupPhysics()
+        setupProgressBars()
+    }
+    
+    func setupProgressBars() {
+        addChild(circle)
+    }
+    
+    var lastTime: TimeInterval = 0
+    override func update(_ currentTime: TimeInterval) {
+        // Calculate the current delta time
+        let deltaTime = currentTime - lastTime
+        lastTime = currentTime
+
+        // Applying an increasing value
+        circle.value += (circle.value < 100 ? 5 * deltaTime : -100)
     }
     
     func setupPhysics() {

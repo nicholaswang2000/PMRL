@@ -198,9 +198,13 @@ class GameScene: SKScene {
         let touchedNodes = nodes(at: touchLocation)
         for node in touchedNodes {
             if node.name == "Pause" {
+                timerTop.invalidate()
+                timerBottom.invalidate()
                 pauseGame()
             }
             if node.name == "Paused Scene" {
+                timerTop = Timer.scheduledTimer(timeInterval: VariableValues.regen, target: self, selector: #selector(addTop), userInfo: nil, repeats: true)
+                timerBottom = Timer.scheduledTimer(timeInterval: VariableValues.regen, target: self, selector: #selector(addBottom), userInfo: nil, repeats: true)
                 resumeGame()
             }
         }
@@ -262,6 +266,10 @@ extension GameScene: SKPhysicsContactDelegate {
             } else {
                 updateScoreLabel(Players.bottom)
             }
+            timerTop.invalidate()
+            timerBottom.invalidate()
+            topBallsLeft = VariableValues.startBalls
+            bottomBallsLeft = VariableValues.startBalls
             removeAllChildren()
             setupField()
             setupPhysics()

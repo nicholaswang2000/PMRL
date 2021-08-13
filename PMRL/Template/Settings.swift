@@ -88,7 +88,7 @@ enum VariableValues {
     static let ballSpeedY: Int = 500
     static let ballRadius =  UIScreen.main.bounds.size.width/50
     
-    static let regen: TimeInterval = 0.8
+    static let regen: TimeInterval = 2
     
     static let maxBalls = 20
     static let startBalls = 10
